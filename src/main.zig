@@ -34,26 +34,54 @@ fn draw() !void {
     const halfGrid = gridSize / 2;
 
     for (0..rows) |row| {
-        const gridCenterY: i32 = @intCast(row * gridSize);
+        const gridCenterY: f32 = @floatFromInt(row * gridSize);
         for (0..columns) |column| {
-            const gridCenterX: i32 = @intCast(column * gridSize);
-            rl.DrawPixel(gridCenterX, gridCenterY, rl.WHITE);
+            const gridCenterX: f32 = @floatFromInt(column * gridSize);
+            // rl.DrawPixel(@intFromFloat(gridCenterX), @intFromFloat(gridCenterY), rl.WHITE);
+
+            const transformedGridCenterX: f32 = gridCenterX - gridCenterY;
+            const transformedGridCenterY: f32 = gridCenterX * 0.4 + gridCenterY * 0.4;
+            rl.DrawPixel(@intFromFloat(transformedGridCenterX), @intFromFloat(transformedGridCenterY), rl.YELLOW);
 
             // draw grid vertical lines
-            const gridLineStartX: i32 = @intCast(column * gridSize + (gridSize / 2));
-            const gridLineStartY: i32 = -halfGrid;
-            const gridLineEndX: i32 = @intCast(gridCenterX + (gridSize / 2));
-            const gridLineEndY: i32 = gridSize * rows - halfGrid;
-            rl.DrawLine(gridLineStartX, gridLineStartY, gridLineEndX, gridLineEndY, rl.RED);
+            const gridLineStartX: f32 = @floatFromInt(column * gridSize + (gridSize / 2));
+            const gridLineStartY: f32 = -halfGrid;
+            const gridLineEndX: f32 = gridCenterX + (gridSize / 2);
+            const gridLineEndY: f32 = gridSize * rows - halfGrid;
+            // rl.DrawLine(@intFromFloat(gridLineStartX), @intFromFloat(gridLineStartY), @intFromFloat(gridLineEndX), @intFromFloat(gridLineEndY), rl.RED);
+            const transformedGridLineStartX: f32 = gridLineStartX - gridLineStartY;
+            const transformedGridLineStartY: f32 = gridLineStartX * 0.4 + gridLineStartY * 0.4;
+            const transformedGridLineEndX: f32 = gridLineEndX - gridLineEndY;
+            const transformedGridLineEndY: f32 = gridLineEndX * 0.4 + gridLineEndY * 0.4;
+            rl.DrawLine(
+                @intFromFloat(transformedGridLineStartX),
+                @intFromFloat(transformedGridLineStartY),
+                @intFromFloat(transformedGridLineEndX),
+                @intFromFloat(transformedGridLineEndY),
+                rl.BLUE,
+            );
         }
 
         // draw grid horizontal lines
-        const gridLineStartX: i32 = -halfGrid;
-        const gridLineStartY: i32 = @intCast(row * gridSize + (gridSize / 2));
-        const gridLineEndX: i32 = gridSize * columns - halfGrid;
-        const gridLineEndY: i32 = @intCast(gridCenterY + (gridSize / 2));
-        rl.DrawLine(gridLineStartX, gridLineStartY, gridLineEndX, gridLineEndY, rl.RED);
+        const gridLineStartX: f32 = -halfGrid;
+        const gridLineStartY: f32 = @floatFromInt(row * gridSize + (gridSize / 2));
+        const gridLineEndX: f32 = gridSize * columns - halfGrid;
+        const gridLineEndY: f32 = gridCenterY + (gridSize / 2);
+        // rl.DrawLine(@intFromFloat(gridLineStartX), @intFromFloat(gridLineStartY), @intFromFloat(gridLineEndX), @intFromFloat(gridLineEndY), rl.RED);
+        const transformedGridLineStartX: f32 = gridLineStartX - gridLineStartY;
+        const transformedGridLineStartY: f32 = gridLineStartX * 0.4 + gridLineStartY * 0.4;
+        const transformedGridLineEndX: f32 = gridLineEndX - gridLineEndY;
+        const transformedGridLineEndY: f32 = gridLineEndX * 0.4 + gridLineEndY * 0.4;
+        rl.DrawLine(
+            @intFromFloat(transformedGridLineStartX),
+            @intFromFloat(transformedGridLineStartY),
+            @intFromFloat(transformedGridLineEndX),
+            @intFromFloat(transformedGridLineEndY),
+            rl.BLUE,
+        );
     }
 
     rl.DrawFPS(rl.GetScreenWidth() - 95, 10);
 }
+
+fn matrixMultiplication() void {}
