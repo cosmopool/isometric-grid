@@ -19,4 +19,10 @@ fn update() !void {
     if (rl.IsKeyPressed(rl.KEY_ESCAPE)) rl.CloseWindow();
 }
 
-fn draw() !void {}
+fn draw() !void {
+    rl.BeginDrawing();
+    defer rl.EndDrawing();
+    rl.ClearBackground(rl.BLACK);
+
+    rl.DrawFPS(rl.GetScreenWidth() - 95, 10);
+}
