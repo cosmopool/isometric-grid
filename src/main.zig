@@ -34,15 +34,15 @@ fn draw() !void {
     const halfGrid = gridSize / 2;
 
     for (0..rows) |row| {
-        const gridYCenter: i32 = @intCast(row * gridSize);
+        const gridCenterY: i32 = @intCast(row * gridSize);
         for (0..columns) |column| {
-            const gridXCenter: i32 = @intCast(column * gridSize);
-            rl.DrawPixel(gridXCenter, gridYCenter, rl.WHITE);
+            const gridCenterX: i32 = @intCast(column * gridSize);
+            rl.DrawPixel(gridCenterX, gridCenterY, rl.WHITE);
 
             // draw grid vertical lines
             const gridLineStartX: i32 = @intCast(column * gridSize + (gridSize / 2));
             const gridLineStartY: i32 = -halfGrid;
-            const gridLineEndX: i32 = @intCast(gridXCenter + (gridSize / 2));
+            const gridLineEndX: i32 = @intCast(gridCenterX + (gridSize / 2));
             const gridLineEndY: i32 = gridSize * rows - halfGrid;
             rl.DrawLine(gridLineStartX, gridLineStartY, gridLineEndX, gridLineEndY, rl.RED);
         }
@@ -51,7 +51,7 @@ fn draw() !void {
         const gridLineStartX: i32 = -halfGrid;
         const gridLineStartY: i32 = @intCast(row * gridSize + (gridSize / 2));
         const gridLineEndX: i32 = gridSize * columns - halfGrid;
-        const gridLineEndY: i32 = @intCast(gridYCenter + (gridSize / 2));
+        const gridLineEndY: i32 = @intCast(gridCenterY + (gridSize / 2));
         rl.DrawLine(gridLineStartX, gridLineStartY, gridLineEndX, gridLineEndY, rl.RED);
     }
 
