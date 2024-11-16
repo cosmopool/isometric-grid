@@ -3,18 +3,26 @@ const rl = @cImport({
     @cInclude("raylib.h");
 });
 
+const assert = std.debug.assert;
+
 const screenHeight = 720;
 const screenWidth = 1080;
 
 const rows = 10;
 const columns = 10;
+const numberOfTiles = rows * columns;
 const tileSize = 40;
+var originalGrid: [numberOfTiles * 2]f32 = undefined;
+var grid: [numberOfTiles * 2]f32 = undefined;
 
 pub fn main() !void {
     rl.SetConfigFlags(rl.FLAG_VSYNC_HINT);
     rl.SetTargetFPS(60);
     rl.InitWindow(screenWidth, screenHeight, "isometric grid");
     defer rl.CloseWindow();
+
+    setupOriginalTiles();
+    transformGrid(1, 0.4, -1, 0.4);
 
     while (!rl.WindowShouldClose()) {
         try update();
@@ -31,57 +39,56 @@ fn draw() !void {
     defer rl.EndDrawing();
     rl.ClearBackground(rl.BLACK);
 
-    const halfTile = tileSize / 2;
+    for (0..grid.len) |i| {
+        const index = i * 2;
+        if (index >= grid.len) break;
 
-    for (0..rows) |row| {
-        const gridCenterY: f32 = @floatFromInt(row * tileSize);
-        for (0..columns) |column| {
-            const gridCenterX: f32 = @floatFromInt(column * tileSize);
-            // rl.DrawPixel(@intFromFloat(gridCenterX), @intFromFloat(gridCenterY), rl.WHITE);
+        const x = index + 0;
+        const y = index + 1;
+        assert(x < grid.len);
+        assert(y <= grid.len);
 
-            const transformedGridCenterX: f32 = gridCenterX - gridCenterY;
-            const transformedGridCenterY: f32 = gridCenterX * 0.4 + gridCenterY * 0.4;
-            rl.DrawPixel(@intFromFloat(transformedGridCenterX), @intFromFloat(transformedGridCenterY), rl.YELLOW);
-
-            // draw grid vertical lines
-            const gridLineStartX: f32 = @floatFromInt(column * tileSize + (tileSize / 2));
-            const gridLineStartY: f32 = -halfTile;
-            const gridLineEndX: f32 = gridCenterX + (tileSize / 2);
-            const gridLineEndY: f32 = tileSize * rows - halfTile;
-            // rl.DrawLine(@intFromFloat(gridLineStartX), @intFromFloat(gridLineStartY), @intFromFloat(gridLineEndX), @intFromFloat(gridLineEndY), rl.RED);
-            const transformedGridLineStartX: f32 = gridLineStartX - gridLineStartY;
-            const transformedGridLineStartY: f32 = gridLineStartX * 0.4 + gridLineStartY * 0.4;
-            const transformedGridLineEndX: f32 = gridLineEndX - gridLineEndY;
-            const transformedGridLineEndY: f32 = gridLineEndX * 0.4 + gridLineEndY * 0.4;
-            rl.DrawLine(
-                @intFromFloat(transformedGridLineStartX),
-                @intFromFloat(transformedGridLineStartY),
-                @intFromFloat(transformedGridLineEndX),
-                @intFromFloat(transformedGridLineEndY),
-                rl.BLUE,
-            );
-        }
-
-        // draw grid horizontal lines
-        const gridLineStartX: f32 = -halfTile;
-        const gridLineStartY: f32 = @floatFromInt(row * tileSize + (tileSize / 2));
-        const gridLineEndX: f32 = tileSize * columns - halfTile;
-        const gridLineEndY: f32 = gridCenterY + (tileSize / 2);
-        // rl.DrawLine(@intFromFloat(gridLineStartX), @intFromFloat(gridLineStartY), @intFromFloat(gridLineEndX), @intFromFloat(gridLineEndY), rl.RED);
-        const transformedGridLineStartX: f32 = gridLineStartX - gridLineStartY;
-        const transformedGridLineStartY: f32 = gridLineStartX * 0.4 + gridLineStartY * 0.4;
-        const transformedGridLineEndX: f32 = gridLineEndX - gridLineEndY;
-        const transformedGridLineEndY: f32 = gridLineEndX * 0.4 + gridLineEndY * 0.4;
-        rl.DrawLine(
-            @intFromFloat(transformedGridLineStartX),
-            @intFromFloat(transformedGridLineStartY),
-            @intFromFloat(transformedGridLineEndX),
-            @intFromFloat(transformedGridLineEndY),
-            rl.BLUE,
-        );
+        rl.DrawPixel(@intFromFloat(grid[x]), @intFromFloat(grid[y]), rl.YELLOW);
     }
 
     rl.DrawFPS(rl.GetScreenWidth() - 95, 10);
+}
+
+inline fn setupOriginalTiles() void {
+    comptime var index: usize = 0;
+    inline for (0..rows) |row| {
+        inline for (0..columns) |column| {
+            if (index >= originalGrid.len) break;
+
+            const x = index + 0;
+            const y = index + 1;
+            assert(x < grid.len);
+            assert(y <= grid.len);
+
+            originalGrid[x] = @floatFromInt(column * tileSize);
+            originalGrid[y] = @floatFromInt(row * tileSize);
+
+            index += 2;
+        }
+    }
+}
+
+fn transformGrid(ax: f32, ay: f32, bx: f32, by: f32) void {
+    for (0..grid.len) |i| {
+        const index = i * 2;
+        if (index >= grid.len) break;
+
+        const x = index + 0;
+        const y = index + 1;
+        assert(x < grid.len);
+        assert(y <= grid.len);
+
+        const transformedX: f32 = originalGrid[x] * ax + originalGrid[y] * bx;
+        const transformedY: f32 = originalGrid[x] * ay + originalGrid[y] * by;
+
+        grid[x] = transformedX;
+        grid[y] = transformedY;
+    }
 }
 
 fn matrixMultiplication() void {}
