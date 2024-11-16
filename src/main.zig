@@ -32,6 +32,10 @@ pub fn main() !void {
 
 fn update() !void {
     if (rl.IsKeyPressed(rl.KEY_ESCAPE)) rl.CloseWindow();
+    if (rl.IsKeyDown(rl.KEY_SEMICOLON) or rl.IsKeyPressed(rl.KEY_SEMICOLON)) offsetX += 10;
+    if (rl.IsKeyDown(rl.KEY_J) or rl.IsKeyPressed(rl.KEY_J)) offsetX -= 10;
+    if (rl.IsKeyDown(rl.KEY_L) or rl.IsKeyPressed(rl.KEY_L)) offsetY -= 10;
+    if (rl.IsKeyDown(rl.KEY_K) or rl.IsKeyPressed(rl.KEY_K)) offsetY += 10;
 }
 
 fn draw() !void {
@@ -48,7 +52,7 @@ fn draw() !void {
         assert(x < grid.len);
         assert(y <= grid.len);
 
-        rl.DrawPixel(@intFromFloat(grid[x]), @intFromFloat(grid[y]), rl.YELLOW);
+        rl.DrawPixel(@intFromFloat(grid[x] + offsetX), @intFromFloat(grid[y] + offsetY), rl.YELLOW);
     }
 
     rl.DrawFPS(rl.GetScreenWidth() - 95, 10);
