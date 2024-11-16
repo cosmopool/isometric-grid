@@ -8,7 +8,7 @@ const screenWidth = 1080;
 
 const rows = 10;
 const columns = 10;
-const gridSize = 40;
+const tileSize = 40;
 
 pub fn main() !void {
     rl.SetConfigFlags(rl.FLAG_VSYNC_HINT);
@@ -31,12 +31,12 @@ fn draw() !void {
     defer rl.EndDrawing();
     rl.ClearBackground(rl.BLACK);
 
-    const halfGrid = gridSize / 2;
+    const halfTile = tileSize / 2;
 
     for (0..rows) |row| {
-        const gridCenterY: f32 = @floatFromInt(row * gridSize);
+        const gridCenterY: f32 = @floatFromInt(row * tileSize);
         for (0..columns) |column| {
-            const gridCenterX: f32 = @floatFromInt(column * gridSize);
+            const gridCenterX: f32 = @floatFromInt(column * tileSize);
             // rl.DrawPixel(@intFromFloat(gridCenterX), @intFromFloat(gridCenterY), rl.WHITE);
 
             const transformedGridCenterX: f32 = gridCenterX - gridCenterY;
@@ -44,10 +44,10 @@ fn draw() !void {
             rl.DrawPixel(@intFromFloat(transformedGridCenterX), @intFromFloat(transformedGridCenterY), rl.YELLOW);
 
             // draw grid vertical lines
-            const gridLineStartX: f32 = @floatFromInt(column * gridSize + (gridSize / 2));
-            const gridLineStartY: f32 = -halfGrid;
-            const gridLineEndX: f32 = gridCenterX + (gridSize / 2);
-            const gridLineEndY: f32 = gridSize * rows - halfGrid;
+            const gridLineStartX: f32 = @floatFromInt(column * tileSize + (tileSize / 2));
+            const gridLineStartY: f32 = -halfTile;
+            const gridLineEndX: f32 = gridCenterX + (tileSize / 2);
+            const gridLineEndY: f32 = tileSize * rows - halfTile;
             // rl.DrawLine(@intFromFloat(gridLineStartX), @intFromFloat(gridLineStartY), @intFromFloat(gridLineEndX), @intFromFloat(gridLineEndY), rl.RED);
             const transformedGridLineStartX: f32 = gridLineStartX - gridLineStartY;
             const transformedGridLineStartY: f32 = gridLineStartX * 0.4 + gridLineStartY * 0.4;
@@ -63,10 +63,10 @@ fn draw() !void {
         }
 
         // draw grid horizontal lines
-        const gridLineStartX: f32 = -halfGrid;
-        const gridLineStartY: f32 = @floatFromInt(row * gridSize + (gridSize / 2));
-        const gridLineEndX: f32 = gridSize * columns - halfGrid;
-        const gridLineEndY: f32 = gridCenterY + (gridSize / 2);
+        const gridLineStartX: f32 = -halfTile;
+        const gridLineStartY: f32 = @floatFromInt(row * tileSize + (tileSize / 2));
+        const gridLineEndX: f32 = tileSize * columns - halfTile;
+        const gridLineEndY: f32 = gridCenterY + (tileSize / 2);
         // rl.DrawLine(@intFromFloat(gridLineStartX), @intFromFloat(gridLineStartY), @intFromFloat(gridLineEndX), @intFromFloat(gridLineEndY), rl.RED);
         const transformedGridLineStartX: f32 = gridLineStartX - gridLineStartY;
         const transformedGridLineStartY: f32 = gridLineStartX * 0.4 + gridLineStartY * 0.4;
