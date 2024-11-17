@@ -102,11 +102,11 @@ inline fn generateOriginalGrid() void {
             assert(x < grid.len);
             assert(y <= grid.len);
 
-            // grid tile coordinates
+            // grid tiles coordinates
             originalGrid[x] = @floatFromInt(column * tileSize);
             originalGrid[y] = @floatFromInt(row * tileSize);
 
-            // grid line coordinates
+            // grid lines coordinates
             originalVerticalGridLinesStart[x] = @floatFromInt(column * tileSize + halfTile);
             originalVerticalGridLinesStart[y] = -halfTile;
             originalVerticalGridLinesEnd[x] = originalGrid[x] + halfTile;
