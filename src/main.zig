@@ -29,6 +29,7 @@ var horizontalGridLinesEnd: [numberOfTiles * 2]f32 = undefined;
 // grid visualization properties
 var offsetX: f32 = 0;
 var offsetY: f32 = 0;
+var tilt: f32 = 0.4;
 
 pub fn main() !void {
     rl.SetConfigFlags(rl.FLAG_VSYNC_HINT);
@@ -37,7 +38,7 @@ pub fn main() !void {
     defer rl.CloseWindow();
 
     generateOriginalGrid();
-    transformGrid(1, 0.4, -1, 0.4);
+    transformGrid(1, tilt, -1, tilt);
 
     while (!rl.WindowShouldClose()) {
         try update();
@@ -51,6 +52,8 @@ fn update() !void {
     if (rl.IsKeyDown(rl.KEY_J)) offsetX -= 10;
     if (rl.IsKeyDown(rl.KEY_L)) offsetY -= 10;
     if (rl.IsKeyDown(rl.KEY_K)) offsetY += 10;
+    if (rl.IsKeyDown(rl.KEY_R)) tiltBoard(-0.01);
+    if (rl.IsKeyDown(rl.KEY_F)) tiltBoard(0.01);
 }
 
 fn draw() !void {
@@ -157,4 +160,10 @@ fn transformGrid(ax: f32, ay: f32, bx: f32, by: f32) void {
         horizontalGridLinesEnd[x] = horizontalTransformedLinesPointsEnd[0];
         horizontalGridLinesEnd[y] = horizontalTransformedLinesPointsEnd[1];
     }
+}
+
+fn tiltBoard(by: f32) void {
+    if (tilt + by > 1 or tilt + by < 0) return;
+    tilt += by;
+    transformGrid(1, tilt, -1, tilt);
 }
