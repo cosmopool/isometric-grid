@@ -36,7 +36,7 @@ pub fn main() !void {
     rl.InitWindow(screenWidth, screenHeight, "isometric grid");
     defer rl.CloseWindow();
 
-    setupOriginalGrid();
+    generateOriginalGrid();
     transformGrid(1, 0.4, -1, 0.4);
 
     while (!rl.WindowShouldClose()) {
@@ -87,7 +87,7 @@ fn draw() !void {
     rl.DrawFPS(rl.GetScreenWidth() - 95, 10);
 }
 
-inline fn setupOriginalGrid() void {
+inline fn generateOriginalGrid() void {
     const halfTile = tileSize / 2;
     comptime var index: usize = 0;
     inline for (0..rows) |row| {
