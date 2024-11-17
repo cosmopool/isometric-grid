@@ -3,12 +3,12 @@ A isometric grid visualization with raylib and zig.
 
 ## Controls:
 
-Move grid left: H
-Move grid right: SEMICOLON
-Move grid up: L
-Move grid down: K
-Tilt grid up: R
-Tilt grid down: F
+- Move grid left: H
+- Move grid right: SEMICOLON
+- Move grid up: L
+- Move grid down: K
+- Tilt grid up: R
+- Tilt grid down: F
 
 ## Compatibility:
 
