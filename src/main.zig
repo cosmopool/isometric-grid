@@ -30,6 +30,7 @@ var horizontalLinesEnd: [numberOfTiles * 2]f32 = undefined;
 var offsetX: f32 = 0;
 var offsetY: f32 = 0;
 var tilt: f32 = 0.4;
+var theta: f32 = 45;
 
 pub fn main() !void {
     rl.SetConfigFlags(rl.FLAG_VSYNC_HINT);
@@ -55,6 +56,8 @@ fn update() !void {
     if (rl.IsKeyDown(rl.KEY_K)) offsetY += 10;
     if (rl.IsKeyDown(rl.KEY_R)) tiltBoard(-0.01);
     if (rl.IsKeyDown(rl.KEY_F)) tiltBoard(0.01);
+    if (rl.IsKeyDown(rl.KEY_G)) rotateBoard(0.1);
+    if (rl.IsKeyDown(rl.KEY_D)) rotateBoard(-0.1);
 }
 
 fn draw() !void {
@@ -181,4 +184,19 @@ fn tiltBoard(amountToTilt: f32) void {
     if (tilt + amountToTilt > 1 or tilt + amountToTilt < 0) return;
     tilt += amountToTilt;
     transformGrid(1, tilt, -1, tilt);
+}
+
+fn rotateBoard(angle: f32) void {
+    theta += angle;
+    const cos = std.math.cos(theta);
+    const sin = std.math.sin(theta);
+
+    // Z axis
+    // transformGrid(cos, sin, -sin, cos);
+    transformGrid(
+        1 * cos + -1 * sin,
+        0.4 * cos + 0.4 * sin,
+        1 * -sin + -1 * cos,
+        0.4 * -sin + 0.4 * cos,
+    );
 }
