@@ -27,10 +27,10 @@ var horizontalLinesStart: [numberOfTiles * 2]f32 = undefined;
 var horizontalLinesEnd: [numberOfTiles * 2]f32 = undefined;
 
 // grid visualization properties
-var offsetX: f32 = 0;
-var offsetY: f32 = 0;
+var cameraOffsetX: f32 = 0;
+var cameraOffsetY: f32 = 0;
 var tilt: f32 = 0.4;
-var theta: f32 = 45;
+var theta: f32 = 0;
 
 pub fn main() !void {
     rl.SetConfigFlags(rl.FLAG_VSYNC_HINT);
@@ -38,9 +38,12 @@ pub fn main() !void {
     rl.InitWindow(screenWidth, screenHeight, "isometric grid");
     defer rl.CloseWindow();
 
+    cameraOffsetX = screenWidth / 2;
+    cameraOffsetY = screenHeight / 2;
+
     // setup initial grid
     generateSymmetricalGrid();
-    transformGrid(1, tilt, -1, tilt);
+    transformGrid();
 
     while (!rl.WindowShouldClose()) {
         try update();
@@ -50,14 +53,14 @@ pub fn main() !void {
 
 fn update() !void {
     if (rl.IsKeyPressed(rl.KEY_ESCAPE)) rl.CloseWindow();
-    if (rl.IsKeyDown(rl.KEY_SEMICOLON)) offsetX += 10;
-    if (rl.IsKeyDown(rl.KEY_J)) offsetX -= 10;
-    if (rl.IsKeyDown(rl.KEY_L)) offsetY -= 10;
-    if (rl.IsKeyDown(rl.KEY_K)) offsetY += 10;
+    if (rl.IsKeyDown(rl.KEY_SEMICOLON)) cameraOffsetX += 10;
+    if (rl.IsKeyDown(rl.KEY_J)) cameraOffsetX -= 10;
+    if (rl.IsKeyDown(rl.KEY_L)) cameraOffsetY -= 10;
+    if (rl.IsKeyDown(rl.KEY_K)) cameraOffsetY += 10;
     if (rl.IsKeyDown(rl.KEY_R)) tiltBoard(-0.01);
     if (rl.IsKeyDown(rl.KEY_F)) tiltBoard(0.01);
-    if (rl.IsKeyDown(rl.KEY_G)) rotateBoard(0.1);
-    if (rl.IsKeyDown(rl.KEY_D)) rotateBoard(-0.1);
+    if (rl.IsKeyDown(rl.KEY_G)) rotateBoard(0.02);
+    if (rl.IsKeyDown(rl.KEY_D)) rotateBoard(-0.02);
 }
 
 fn draw() !void {
@@ -74,19 +77,19 @@ fn draw() !void {
         assert(x < grid.len);
         assert(y <= grid.len);
 
-        rl.DrawPixel(@intFromFloat(grid[x] + offsetX), @intFromFloat(grid[y] + offsetY), rl.YELLOW);
+        rl.DrawPixel(@intFromFloat(grid[x] + cameraOffsetX), @intFromFloat(grid[y] + cameraOffsetY), rl.YELLOW);
         rl.DrawLine(
-            @intFromFloat(verticalLinesStart[x] + offsetX),
-            @intFromFloat(verticalLinesStart[y] + offsetY),
-            @intFromFloat(verticalLinesEnd[x] + offsetX),
-            @intFromFloat(verticalLinesEnd[y] + offsetY),
+            @intFromFloat(verticalLinesStart[x] + cameraOffsetX),
+            @intFromFloat(verticalLinesStart[y] + cameraOffsetY),
+            @intFromFloat(verticalLinesEnd[x] + cameraOffsetX),
+            @intFromFloat(verticalLinesEnd[y] + cameraOffsetY),
             rl.BLUE,
         );
         rl.DrawLine(
-            @intFromFloat(horizontalLinesStart[x] + offsetX),
-            @intFromFloat(horizontalLinesStart[y] + offsetY),
-            @intFromFloat(horizontalLinesEnd[x] + offsetX),
-            @intFromFloat(horizontalLinesEnd[y] + offsetY),
+            @intFromFloat(horizontalLinesStart[x] + cameraOffsetX),
+            @intFromFloat(horizontalLinesStart[y] + cameraOffsetY),
+            @intFromFloat(horizontalLinesEnd[x] + cameraOffsetX),
+            @intFromFloat(horizontalLinesEnd[y] + cameraOffsetY),
             rl.BLUE,
         );
     }
@@ -104,6 +107,10 @@ fn draw() !void {
 /// The alternative is one for-loop to iterate over the tiles
 /// and other to go over lines (maybe this is better/cleaner?).
 inline fn generateSymmetricalGrid() void {
+    // offset to calculate the center of the grid
+    const gridOffsetX: f32 = (columns / 2) * tileSize;
+    const gridOffsetY: f32 = (rows / 2) * tileSize;
+
     const halfTile = tileSize / 2;
     comptime var index: usize = 0;
     inline for (0..rows) |row| {
@@ -117,20 +124,21 @@ inline fn generateSymmetricalGrid() void {
             index += 2;
 
             // grid tiles coordinates
-            symmetricalGrid[x] = @floatFromInt(column * tileSize);
-            symmetricalGrid[y] = @floatFromInt(row * tileSize);
+            symmetricalGrid[x] = (column * tileSize) - gridOffsetX;
+            symmetricalGrid[y] = (row * tileSize) - gridOffsetY;
+            // std.debug.print("{d}, {d}\n", .{ symmetricalGrid[x], symmetricalGrid[y] });
 
             // vertical grid lines coordinates
-            symmetricalVerticalLinesStart[x] = @floatFromInt(column * tileSize + halfTile);
-            symmetricalVerticalLinesStart[y] = -halfTile;
+            symmetricalVerticalLinesStart[x] = @as(f32, @floatFromInt(column * tileSize + halfTile)) - gridOffsetX;
+            symmetricalVerticalLinesStart[y] = -halfTile - gridOffsetY;
             symmetricalVerticalLinesEnd[x] = symmetricalGrid[x] + halfTile;
-            symmetricalVerticalLinesEnd[y] = tileSize * rows - halfTile;
+            symmetricalVerticalLinesEnd[y] = tileSize * rows - halfTile - gridOffsetX;
 
             if (column > 0) continue;
             // vertical grid lines coordinates
-            symmetricalHorizontalLinesStart[x] = -halfTile;
-            symmetricalHorizontalLinesStart[y] = @floatFromInt(row * tileSize + halfTile);
-            symmetricalHorizontalLinesEnd[x] = tileSize * columns - halfTile;
+            symmetricalHorizontalLinesStart[x] = -halfTile - gridOffsetX;
+            symmetricalHorizontalLinesStart[y] = @as(f32, @floatFromInt(row * tileSize + halfTile)) - gridOffsetY;
+            symmetricalHorizontalLinesEnd[x] = tileSize * columns - halfTile - gridOffsetX;
             symmetricalHorizontalLinesEnd[y] = symmetricalGrid[y] + halfTile;
         }
     }
@@ -148,7 +156,15 @@ fn transformPoints(pointX: f32, pointY: f32, ax: f32, ay: f32, bx: f32, by: f32)
     return [2]f32{ transformedX, transformedY };
 }
 
-fn transformGrid(ax: f32, ay: f32, bx: f32, by: f32) void {
+fn transformGrid() void {
+    const cos = std.math.cos(theta);
+    const sin = std.math.sin(theta);
+
+    const ax: f32 = 1 * cos + -1 * sin;
+    const ay: f32 = tilt * cos + tilt * sin;
+    const bx: f32 = 1 * -sin + -1 * cos;
+    const by: f32 = tilt * -sin + tilt * cos;
+
     for (0..grid.len) |i| {
         const index = i * 2;
         if (index >= grid.len) break;
@@ -183,20 +199,10 @@ fn transformGrid(ax: f32, ay: f32, bx: f32, by: f32) void {
 fn tiltBoard(amountToTilt: f32) void {
     if (tilt + amountToTilt > 1 or tilt + amountToTilt < 0) return;
     tilt += amountToTilt;
-    transformGrid(1, tilt, -1, tilt);
+    transformGrid();
 }
 
 fn rotateBoard(angle: f32) void {
     theta += angle;
-    const cos = std.math.cos(theta);
-    const sin = std.math.sin(theta);
-
-    // Z axis
-    // transformGrid(cos, sin, -sin, cos);
-    transformGrid(
-        1 * cos + -1 * sin,
-        0.4 * cos + 0.4 * sin,
-        1 * -sin + -1 * cos,
-        0.4 * -sin + 0.4 * cos,
-    );
+    transformGrid();
 }
